@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム音声認識・合成アプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎤 リアルタイム音声認識・合成アプリ</h1>
+            <p class="subtitle">マイクで話すと、テキスト化され、音声で読み上げられます</p>
+        </header>
+
+        <main>
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary">
+                    <span class="icon">🎤</span>
+                    録音開始
+                </button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>
+                    <span class="icon">⏹</span>
+                    録音停止
+                </button>
+                <button id="clearBtn" class="btn btn-tertiary">
+                    <span class="icon">🗑</span>
+                    クリア
+                </button>
+            </div>
+
+            <div class="status">
+                <div id="statusText" class="status-text">準備完了</div>
+                <div id="recognizingIndicator" class="recognizing-indicator"></div>
+            </div>
+
+            <div class="content-area">
+                <div class="transcription-section">
+                    <h2>📝 認識されたテキスト</h2>
+                    <div id="transcriptionArea" class="text-area" contenteditable="true">
+                        <p class="placeholder">ここに認識されたテキストが表示されます...</p>
+                    </div>
+                </div>
+
+                <div class="speech-section">
+                    <h2>🔊 音声合成</h2>
+                    <div class="voice-controls">
+                        <label for="voiceSelect">音声:</label>
+                        <select id="voiceSelect" class="voice-select"></select>
+                        <label for="rateRange">速度:</label>
+                        <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="2" class="slider">
+                        <span id="rateValue">2.0</span>
+                        <label for="pitchRange">高さ:</label>
+                        <input type="range" id="pitchRange" min="0" max="2" step="0.1" value="2" class="slider">
+                        <span id="pitchValue">2.0</span>
+                        <label for="volumeRange">音量:</label>
+                        <input type="range" id="volumeRange" min="0" max="1" step="0.1" value="1" class="slider">
+                        <span id="volumeValue">1.0</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p class="info">※ Chrome、EdgeなどのChromiumベースのブラウザで動作します</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

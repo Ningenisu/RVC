@@ -1,0 +1,22 @@
+{
+  "name": "realtime-speech-app",
+  "version": "1.0.0",
+  "description": "リアルタイム音声認識と音声合成アプリケーション",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "speech-recognition",
+    "speech-synthesis",
+    "realtime",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
