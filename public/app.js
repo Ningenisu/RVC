@@ -24,6 +24,7 @@ const volumeRange = document.getElementById('volumeRange');
 const rateValue = document.getElementById('rateValue');
 const pitchValue = document.getElementById('pitchValue');
 const volumeValue = document.getElementById('volumeValue');
+const testBtn = document.getElementById('testBtn');
 
 // 音声合成の準備
 let synthesis = window.speechSynthesis;
@@ -314,6 +315,45 @@ document.addEventListener('keydown', (event) => {
             }
         }
     }
+
+// テストボタンのイベントリスナー
+testBtn.addEventListener('click', () => {
+    // 既存の読み上げを停止
+    if (currentUtterance) {
+        synthesis.cancel();
+        currentUtterance = null;
+    }
+    
+    const testText = '音声テスト中';
+    const utterance = new SpeechSynthesisUtterance(testText);
+    
+    // 音声設定
+    const selectedVoiceIndex = parseInt(voiceSelect.value);
+    if (voices[selectedVoiceIndex]) {
+        utterance.voice = voices[selectedVoiceIndex];
+    }
+    utterance.rate = parseFloat(rateRange.value);
+    utterance.pitch = parseFloat(pitchRange.value);
+    utterance.volume = parseFloat(volumeRange.value);
+    utterance.lang = 'ja-JP';
+    
+    utterance.onstart = () => {
+        statusText.textContent = '音声テスト中...';
+    };
+    
+    utterance.onend = () => {
+        statusText.textContent = '音声テスト完了';
+        currentUtterance = null;
+    };
+    
+    utterance.onerror = (event) => {
+        console.error('読み上げエラー:', event.error);
+        statusText.textContent = `読み上げエラー: ${event.error}`;
+        currentUtterance = null;
+    };
+    
+    currentUtterance = utterance;
+    synthesis.speak(utterance);
 });
 
 // ページ離脱時のクリーンアップ
@@ -325,4 +365,4 @@ window.addEventListener('beforeunload', () => {
         synthesis.cancel();
     }
 });
-
+});
