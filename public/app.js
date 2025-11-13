@@ -36,6 +36,8 @@ let isListening = false;
 let finalTranscript = '';
 let lastSpokenText = ''; // 最後に読み上げたテキストを記録
 let isManualStop = false; // 手動停止フラグ
+let restartTimer = null; // 20秒ごとの再起動タイマー
+const RESTART_INTERVAL = 20000; // 20秒（ミリ秒）
 
 // 音声リストの読み込み
 function loadVoices() {
@@ -84,9 +86,39 @@ volumeRange.addEventListener('input', (e) => {
     volumeValue.textContent = parseFloat(e.target.value).toFixed(1);
 });
 
+// 20秒ごとの自動再起動タイマーを開始
+function startRestartTimer() {
+    // 既存のタイマーをクリア
+    if (restartTimer) {
+        clearInterval(restartTimer);
+        restartTimer = null;
+    }
+    
+    // 20秒ごとに再起動
+    restartTimer = setInterval(() => {
+        if (isListening && !isManualStop) {
+            console.log('20秒経過。音声認識を再起動します...');
+            // 自動再起動フラグを設定して停止
+            isManualStop = false; // 自動再起動なのでfalseのまま
+            recognition.stop();
+            // onendイベントで自動的に再開される
+        }
+    }, RESTART_INTERVAL);
+}
+
+// タイマーを停止
+function stopRestartTimer() {
+    if (restartTimer) {
+        clearInterval(restartTimer);
+        restartTimer = null;
+    }
+}
+
 // 音声認識のイベントハンドラ
 recognition.onstart = () => {
     isListening = true;
+    // 20秒ごとの自動再起動タイマーを開始
+    startRestartTimer();
     // 音声認識エンジンの初期化を待つため、少し遅延してから準備完了を通知
     setTimeout(() => {
         statusText.textContent = '音声認識準備完了。話してください。';
@@ -231,6 +263,7 @@ recognition.onend = () => {
                                 recognition.start();
                             } catch (retryError) {
                                 console.error('再試行も失敗:', retryError);
+                                stopRestartTimer(); // タイマーを停止
                                 statusText.textContent = '音声認識が停止しました';
                                 recognizingIndicator.classList.remove('active');
                                 startBtn.disabled = false;
@@ -243,6 +276,7 @@ recognition.onend = () => {
         }, 200);
     } else {
         // 手動停止の場合
+        stopRestartTimer(); // タイマーを停止
         statusText.textContent = '音声認識が停止しました';
         recognizingIndicator.classList.remove('active');
         startBtn.disabled = false;
@@ -266,6 +300,7 @@ startBtn.addEventListener('click', () => {
 
 stopBtn.addEventListener('click', () => {
     isManualStop = true; // 手動停止フラグを設定
+    stopRestartTimer(); // タイマーを停止
     recognition.stop();
     statusText.textContent = '停止中...';
 });
@@ -298,6 +333,7 @@ document.addEventListener('keydown', (event) => {
             if (isListening) {
                 // 録音中なら停止
                 isManualStop = true;
+                stopRestartTimer(); // タイマーを停止
                 recognition.stop();
                 statusText.textContent = '停止中...';
             } else {
@@ -315,6 +351,7 @@ document.addEventListener('keydown', (event) => {
             }
         }
     }
+});
 
 // テストボタンのイベントリスナー
 testBtn.addEventListener('click', () => {
@@ -358,11 +395,11 @@ testBtn.addEventListener('click', () => {
 
 // ページ離脱時のクリーンアップ
 window.addEventListener('beforeunload', () => {
+    stopRestartTimer(); // タイマーを停止
     if (isListening) {
         recognition.stop();
     }
     if (currentUtterance) {
         synthesis.cancel();
     }
-});
 });
