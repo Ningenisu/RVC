@@ -280,6 +280,42 @@ clearBtn.addEventListener('click', () => {
     statusText.textContent = '準備完了';
 });
 
+// Zキーで録音開始/停止を切り替える
+document.addEventListener('keydown', (event) => {
+    // Zキーが押された場合（入力フィールドにフォーカスがある場合は無視）
+    if (event.key === 'z' || event.key === 'Z') {
+        // 入力フィールド（テキストエリア、セレクトボックス、スライダーなど）にフォーカスがある場合は無視
+        const activeElement = document.activeElement;
+        const isInputFocused = activeElement.tagName === 'INPUT' || 
+                               activeElement.tagName === 'TEXTAREA' || 
+                               activeElement.tagName === 'SELECT' ||
+                               activeElement.isContentEditable;
+        
+        if (!isInputFocused) {
+            event.preventDefault(); // デフォルトの動作を防ぐ
+            
+            if (isListening) {
+                // 録音中なら停止
+                isManualStop = true;
+                recognition.stop();
+                statusText.textContent = '停止中...';
+            } else {
+                // 停止中なら開始
+                finalTranscript = '';
+                lastSpokenText = '';
+                isManualStop = false;
+                statusText.textContent = '音声認識を開始しています...';
+                recognizingIndicator.classList.remove('active');
+                if (currentUtterance) {
+                    synthesis.cancel();
+                    currentUtterance = null;
+                }
+                recognition.start();
+            }
+        }
+    }
+});
+
 // ページ離脱時のクリーンアップ
 window.addEventListener('beforeunload', () => {
     if (isListening) {
